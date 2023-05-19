@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Contoh HTML dengan Python</title>
+  <script>
+    // Fungsi JavaScript untuk memanggil fungsi Python dan menampilkan hasilnya
+    function panggilFungsiPython() {
+      // Mendapatkan nilai input dari pengguna
+      var inputNilai = document.getElementById("inputNilai").value;
+      
+      // Mengirimkan nilai input ke fungsi Python menggunakan Ajax
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/panggil_fungsi_python", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          // Mendapatkan hasil output dari fungsi Python
+          var hasilOutput = JSON.parse(xhr.responseText).output;
+          
+          // Menampilkan hasil output ke elemen dengan id "hasilOutput"
+          document.getElementById("hasilOutput").innerHTML = hasilOutput;
+        }
+      };
+      var data = JSON.stringify({ inputNilai: inputNilai });
+      xhr.send(data);
+    }
+  </script>
+</head>
+<body>
+  <h1>Contoh HTML dengan Python</h1>
+  
+  <label for="inputNilai">Masukkan Nilai:</label>
+  <input type="text" id="inputNilai">
+  <button onclick="panggilFungsiPython()">Panggil Fungsi Python</button>
+  
+  <br><br>
+  
+  <div id="hasilOutput"></div>
+</body>
+</html>
