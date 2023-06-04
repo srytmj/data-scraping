@@ -12,7 +12,7 @@ def get_info(app_id):
     dlc = []
     
     country = ['us', 'id', 'ar', 'tr', 'ua']
-    # country = ['us', 'id'] # test purpose
+    # country = ['us'] # test purpose
 
     # Download the JSON file
     for x in country:
@@ -31,7 +31,7 @@ def get_info(app_id):
             for sub in subs:
                 main_data.append({
                     "percent_savings_text": sub["percent_savings_text"],
-                    "option_text": sub["option_text"].split(" - S$" and " - <")[0],
+                    "option_text": sub["option_text"].rsplit("-", 1)[0].strip(),
                     "price_with_discount": sub["price_in_cents_with_discount"] / 100
                 })
 
@@ -45,20 +45,28 @@ def get_info(app_id):
                     # Process the data for each DLC ID as needed
                     data = data[str(dlc_id)]['data']
                     dlc_data.append({
-                        "percent_savings_text": data['price_overview']['discount_percent'],
+                        "percent_savings_text": '' if data['price_overview']['discount_percent'] is None else data['price_overview']['discount_percent'],
                         "option_text": data['name'],
                         "price_with_discount": data['price_overview']['final'] / 100
                     })
                 except KeyError:
                     # Process the data for each DLC ID as needed
-                    dlc_data.append({
-                        "percent_savings_text": data["package_groups"][0]["subs"][0]["percent_savings_text"],
-                        "option_text": data['name'],
-                        "price_with_discount": data["package_groups"][0]["subs"][0]["price_in_cents_with_discount"] / 100
-                    })
+                    try:
+                        dlc_data.append({
+                            "percent_savings_text": data["package_groups"][0]["subs"][0]["percent_savings_text"],
+                            "option_text": data['name'],
+                            "price_with_discount": data["package_groups"][0]["subs"][0]["price_in_cents_with_discount"] / 100
+                        })
+                    except:
+                        dlc_data.append({
+                            "percent_savings_text": '',
+                            "option_text": 'no dlc' if data['name'] is None else data['name'],
+                            "price_with_discount": 0
+                        })
+                        sleep(.05)
         except KeyError:
             dlc_data.append({
-                "percent_savings_text": 0,
+                "percent_savings_text": '',
                 "option_text": 'no dlc',
                 "price_with_discount": 0
             })
@@ -70,7 +78,10 @@ def get_info(app_id):
         # main_datas.clear()
         main.append(main_data)
         dlc.append(dlc_data)
+    sleep(.05)
     system('clear')
+    # print(main)
+    # print(dlc)
     return main, dlc
 
 
@@ -99,13 +110,16 @@ def get_table(key, main_datas):
     for item in updated_data:
         name = item[0]
         discount = item[1]
-
-        if discount == 0:
+        # print(discount)
+        if discount == 0 or '' or '  ' :
             discount = ''
         elif discount in range(1,100):
             discount = str(f'( -{item[1]}% )')
-        elif isinstance(discount, str):
+        elif isinstance(discount, str) or not ' ':
             discount = str(f'( {item[1]})')
+        
+        discount = discount if discount != 0 else ''
+        # print(discount)
 
         if name in combined_data:
             combined_data[name].append(item[2])
@@ -116,7 +130,6 @@ def get_table(key, main_datas):
             discount_data[name].append(discount)
         else:
             discount_data[name] = [discount]
-
     for values in combined_data.values():
         for i in range(len(values)):
             values[i] *= multipliers[i]
@@ -125,9 +138,12 @@ def get_table(key, main_datas):
 
     headers = ["Game" if key == "game" else "DLC", "USD", "IDR", "ARS", "TRY", "UAH"]
 
+    # headers = ["Game" if key == "game" else "DLC", "USD"]
+    # print(f'its discount_data >{discount_data}<')
     for name, prices in combined_data.items():
         discounts = discount_data[name]
-        table.append([name] + ["Free" if prices[1] == 0 else "Rp. {:,} {}".format(price, discount) for price, discount in zip(prices, discounts)])
+        # print(discount)
+        table.append([name] + ["Free" if prices[0] == 0 else "Rp. {:,} {}".format(price, discount) for price, discount in zip(prices, discounts)])
 
     table = [[sublist[0]] + [num for num in sublist[1:]] for sublist in table]
 
@@ -139,8 +155,10 @@ def table_result(app_id):
     system('clear')
     game, dlc = get_info(app_id)
     data = {'game':game, 'dlc':dlc}
+    x = []
     for key, value in data.items():
-        print(get_table(key, value))
-
-
-# table_result("2369390")
+        # print(get_table(key, value))
+        x.append(get_table(key, value))
+    return x
+for x in table_result('1501750'):
+    print(x)

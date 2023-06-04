@@ -91,7 +91,9 @@ while True:
         elif menu == "3":
             link = input("Enter url: ")
             app_id = re.search(r'/(\d+)/', link).group(1)
-            getdata.table_result(app_id)
+            datas = getdata.table_result(app_id)
+            for x in datas:
+                print(x)
             option = input("Back? [y/n]")
             if option == "y":
                 main()
