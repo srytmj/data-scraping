@@ -11,7 +11,7 @@ def get_info(app_id):
     main = []
     dlc = []
     
-    country = ['us', 'id', 'ar', 'tr', 'ua']
+    country = ['us', 'id', 'ar', 'tr', 'ua', 'in']
     # country = ['us'] # test purpose
 
     # Download the JSON file
@@ -90,7 +90,7 @@ def get_table(key, main_datas):
     updated_data = []
     combined_data = {}
     discount_data = {}
-    multipliers = [14844, 1, 64, 753, 402] #forex purpose
+    multipliers = [14844, 1, 64, 753, 402 , 184] #forex purpose
 
     for piece in main_datas:
         for country, items in piece.items():
@@ -136,7 +136,7 @@ def get_table(key, main_datas):
 
     table = []
 
-    headers = ["Game" if key == "game" else "DLC", "USD", "IDR", "ARS", "TRY", "UAH"]
+    headers = ["Game" if key == "game" else "DLC", "USD", "IDR", "ARS", "TRY", "UAH", "INR"]
 
     # headers = ["Game" if key == "game" else "DLC", "USD"]
     # print(f'its discount_data >{discount_data}<')
@@ -160,5 +160,6 @@ def table_result(app_id):
         # print(get_table(key, value))
         x.append(get_table(key, value))
     return x
-for x in table_result('1501750'):
-    print(x)
+
+# for x in table_result('1501750'):
+#     print(x)
